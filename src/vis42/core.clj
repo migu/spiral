@@ -17,16 +17,12 @@
                     :grow true
                     :draw-shape draw-rectangle
                     :shapes []})
-
 (defn setup []
   (q/frame-rate 30)
   (q/color-mode :hsb)
   initial-state)
 
-(defn abs [x]
-  (if (< x 0)
-    (- x)
-    x))
+(defn abs [x] (if (< x 0) (- x) x))
 
 (defn diff [a b]
   (abs (- a b)))
@@ -43,18 +39,15 @@
 
 (defn derive-state [state]
   (let [radius (:radius state)
-          grow (cond
-                 (< 50 radius 150) (:grow state)
-                 (>= radius 150) false
-                 :else true)
+        grow (if (< 50 radius 150) (:grow state) (< radius 150))
         draw-fn (if grow draw-circle draw-rectangle)
         shapes (add-shape (:shapes state))]
-      {:color (mod (+ (:color state) 0.7) 255)
-       :angle (+ (:angle state) 0.3)
-       :radius (+ radius (if grow 1 -1))
-       :grow grow
-       :draw-shape draw-rectangle
-       :shapes shapes}))
+    {:color (mod (+ (:color state) 0.7) 255)
+     :angle (+ (:angle state) 0.3)
+     :radius (+ radius (if grow 1 -1))
+     :grow grow
+     :draw-shape draw-rectangle
+     :shapes shapes}))
 
 (defn update-state [state]
   (if (q/key-pressed?)
@@ -63,17 +56,19 @@
 
 (defn draw-state [state]
   (q/background 0)
-  (q/fill (:color state) 255 255)
+
   (let [angle (:angle state)
         r (+ (rand-int 70) 80)
         x (* r (q/cos angle))
         y (* r (q/sin angle))
         radius (:radius state)]
+    (q/fill (:color state) 255 255)
     (q/with-translation [(/ (q/width) 2)
                          (/ (q/height) 2)]
       (apply (:draw-shape state) [x y state]))
+    (q/fill 255 255 255)
     (doseq [shape (:shapes state)]
-        (q/rect (:x shape) (:y shape) 10 10))))
+      (q/rect (:x shape) (:y shape) 10 10))))
 
 (q/defsketch vis42
   :title "You spin my circle right round"
